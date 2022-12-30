@@ -1,6 +1,6 @@
 [package]
 name = "termplot"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Xavier Hamel"]
 description = "An extensible plotting library for CLI applications."
