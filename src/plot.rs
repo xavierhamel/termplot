@@ -1,3 +1,6 @@
+//! Different types of plots and graphs that can be plotted or graphed onto the view.
+//!
+//! If a given type of plot is not present, creat it with [`DrawView`].
 use crate::{DrawView, View, ViewCanvas};
 use std::ops;
 
