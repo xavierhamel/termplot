@@ -2,6 +2,27 @@ use crate::{DrawView, View, ViewCanvas};
 use std::ops;
 
 /// A continuous function to be graphed on the figure.
+///
+/// Use this struct to plot continuous functions on the graph.
+///
+/// # Examples
+///
+/// ```rust
+/// use termplot::*;
+///
+/// let graph = plot::Graph::new(|x| x.sin() / x);
+///
+/// let mut plot = Plot::default();
+/// plot.set_domain(Domain(-10.0..10.0))
+///     .set_codomain(Domain(-0.3..1.2))
+///     .set_title("Graph title")
+///     .set_x_label("X axis")
+///     .set_y_label("Y axis")
+///     .set_size(Size::new(50, 25))
+///     .add_plot(Box::new(graph));
+///
+/// println!("{plot}");
+/// ```
 pub struct Graph<F>
 where
     F: Fn(f64) -> f64,
@@ -13,7 +34,7 @@ impl<F> Graph<F>
 where
     F: Fn(f64) -> f64,
 {
-    /// Create a new continuous function.
+    /// Create a new continuous function to be added to the plot.
     pub fn new(function: F) -> Self {
         Self { function }
     }
@@ -42,7 +63,10 @@ where
     }
 }
 
-pub struct Bar {
+/// A bar in a bar graph or a histogram.
+///
+/// See [`Bars`] or [`Histogram`] for more informations.
+pub(crate) struct Bar {
     x: f64,
     height: f64,
     width: f64,
@@ -62,13 +86,38 @@ impl DrawView for Bar {
     }
 }
 
+/// A bars graph.
+///
+/// All bars are 1 unit wide.
+///
+/// # Examples
+///
+/// ```rust
+/// use termplot::*;
+///
+/// let mut plot = Plot::default();
+///
+/// plot.set_domain(Domain(0.0..6.0))
+///     .set_codomain(Domain(0.0..10.0))
+///     .set_title("Graph title")
+///     .set_x_label("X axis")
+///     .set_y_label("Y axis")
+///     .set_size(Size::new(50, 25))
+///     .add_plot(Box::new(plot::Bars::new(
+///         vec![2.0, 5.0, 1.0, 8.0, 9.0, 1.0],
+///     )));
+/// ```
 pub struct Bars {
     bars: Vec<Bar>,
 }
 
 impl Bars {
-    pub fn new(data: Vec<f64>) -> Self {
-        let bars = data
+    /// Create a new bars graph.
+    ///
+    /// Each value inside `bars_height` represent a bar of the graph. Each value is the height of
+    /// the corresponding bar.
+    pub fn new(bars_height: Vec<f64>) -> Self {
+        let bars = bars_height
             .into_iter()
             .enumerate()
             .map(|(x, height)| Bar::new(x as f64, 1.0, height))
@@ -83,14 +132,44 @@ impl DrawView for Bars {
     }
 }
 
-pub struct Historigram {
+/// An [histogram](https://en.wikipedia.org/wiki/Histogram) graph. An approximation of the
+/// distribution of data.
+///
+/// # Examples
+///
+/// ```rust
+/// use termplot::*;
+/// use rand::Rng;
+///
+/// let mut rng = rand::thread_rng();
+/// let values: Vec<f64> = (0..100).map(|_| rng.gen_range(0.0f64..10.0f64)).collect();
+///
+/// let mut plot = Plot::default();
+///
+/// plot.set_domain(Domain(0.0..11.0))
+///     .set_codomain(Domain(0.0..45.0))
+///     .set_title("Graph title")
+///     .set_x_label("X axis")
+///     .set_y_label("Y axis")
+///     .set_size(Size::new(50, 25))
+///     .add_plot(Box::new(plot::Histogram::new(
+///         values,
+///         vec![0.0..2.0, 2.0..4.0, 4.0..6.0, 6.0..8.0, 8.0..10.0],
+///     )));
+///
+/// println!("{plot}");
+/// ```
+pub struct Histogram {
     buckets: Vec<Bar>,
-    items_count: usize,
 }
 
-impl Historigram {
-    pub fn new(values: Vec<f64>, ranges: Vec<ops::Range<f64>>) -> Self {
-        let buckets = ranges
+impl Histogram {
+    /// Create an histogram from data and buckets in which the data will be sorted.
+    ///
+    /// For each given value, the value will increment the count of the bucket in which it resides
+    /// inside.
+    pub fn new(values: Vec<f64>, buckets_range: Vec<ops::Range<f64>>) -> Self {
+        let buckets = buckets_range
             .into_iter()
             .map(|range| Bar {
                 x: range.start,
@@ -98,12 +177,16 @@ impl Historigram {
                 height: values.iter().filter(|v| range.contains(v)).count() as f64,
             })
             .collect::<Vec<_>>();
-        Self {
-            buckets,
-            items_count: values.len(),
-        }
+        Self { buckets }
     }
 
+    /// Create an histogram from data and a number of buckets.
+    ///
+    /// All buckets will have the same width, depending on the range of the min and max value and
+    /// the number of buckets.
+    ///
+    /// For each given value, the value will increment the count of the bucket in which it resides
+    /// inside.
     pub fn new_with_buckets_count(values: Vec<f64>, count: u32) -> Self {
         let max = values.iter().copied().fold(f64::NEG_INFINITY, f64::max);
         let min = values.iter().copied().fold(f64::INFINITY, f64::min);
@@ -116,7 +199,7 @@ impl Historigram {
     }
 }
 
-impl DrawView for Historigram {
+impl DrawView for Histogram {
     fn draw(&self, view: &View, canvas: &mut ViewCanvas) {
         self.buckets
             .iter()

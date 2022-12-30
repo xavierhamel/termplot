@@ -1,7 +1,7 @@
 # termplot
 An _extensible_ plotting library for CLI applications.
 
-<img src="./assets/logo.png" width="300" alt="termplot.rs logo" align="right">
+<img src="./assets/logo.png" width="250" alt="termplot.rs logo" align="right">
 
  - [Quick Start](#quick-start)
  - [Documentation](#documentation)

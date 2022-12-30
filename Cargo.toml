@@ -2,8 +2,14 @@
 name = "termplot"
 version = "0.1.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+authors = ["Xavier Hamel"]
+description = "An extensible plotting library for CLI applications."
+keywords = ["plot", "graph", "cli", "text", "terminal", "term", "plotting"]
+categories = ["visualization", "command-line-interface"]
+license = "MIT"
+repository = "https://github.com/xavierhamel/termplot"
+homepage = "https://github.com/xavierhamel/termplot"
+readme = "README.md"
 
 [dependencies]
 drawille = "0.3.0"

@@ -1,13 +1,14 @@
 use crate::Domain;
 use std::fmt;
 
+/// Create the labels for the x axis.
 pub(crate) struct XTicks {
     labels: Vec<String>,
     width: usize,
 }
 
 impl XTicks {
-    pub fn new(domain: &Domain, width: usize, count: usize) -> Self {
+    pub fn new(domain: &Domain, width: usize, _count: usize) -> Self {
         let max = format!("{:.1}", domain.max());
         let min = format!("{:.1}", domain.min());
         Self {
@@ -31,13 +32,14 @@ impl fmt::Display for XTicks {
     }
 }
 
+/// Create the labels for the y axis.
 pub(crate) struct YTicks {
     labels: Vec<String>,
     row_indexes: Vec<usize>,
 }
 
 impl YTicks {
-    pub fn new(codomain: &Domain, row_count: usize, count: usize) -> Self {
+    pub fn new(codomain: &Domain, row_count: usize, _count: usize) -> Self {
         let max = format!("{:.1}", codomain.max());
         let min = format!("{:.1}", codomain.min());
         Self {
@@ -46,6 +48,7 @@ impl YTicks {
         }
     }
 
+    /// The width required for the widest label
     pub fn display_width(&self) -> usize {
         let widest_label = self.labels.iter().max_by_key(|label| label.len());
         match widest_label {
@@ -54,6 +57,7 @@ impl YTicks {
         }
     }
 
+    /// Get a label for a specific row.
     pub fn get(&self, row_index: usize) -> &str {
         let maybe_index = self
             .row_indexes
